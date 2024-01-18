@@ -3,8 +3,10 @@ package persister
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"reflect"
+	"sync"
 
 	"github.com/influxdata/telegraf"
 )
@@ -12,7 +14,8 @@ import (
 type Persister struct {
 	Filename string
 
-	register map[string]telegraf.StatefulPlugin
+	register   map[string]telegraf.StatefulPlugin
+	stateMutex sync.Mutex
 }
 
 func (p *Persister) Init() error {
@@ -70,6 +73,9 @@ func (p *Persister) Load() error {
 }
 
 func (p *Persister) Store() error {
+	p.stateMutex.Lock()
+	defer p.stateMutex.Unlock()
+
 	states := make(map[string][]byte)
 
 	// Collect the states and serialize the individual data chunks
@@ -79,6 +85,7 @@ func (p *Persister) Store() error {
 		if err != nil {
 			return fmt.Errorf("marshalling state for id %q failed: %w", id, err)
 		}
+		log.Printf("REMOVE ME state for %q: %s", id, state)
 		states[id] = state
 	}
 
@@ -87,6 +94,8 @@ func (p *Persister) Store() error {
 	if err != nil {
 		return fmt.Errorf("marshalling states failed: %w", err)
 	}
+
+	log.Printf("REMOVE ME -> serialized: %s", serialized)
 
 	// Write the states to disk
 	f, err := os.Create(p.Filename)

@@ -125,6 +125,13 @@ func (t *Tail) SetState(state interface{}) error {
 	for k, v := range offsetsState {
 		t.offsets[k] = v
 	}
+	// REMOVE ME persist offsets
+	offsetsMutex.Lock()
+	for k, v := range t.offsets {
+		offsets[k] = v
+	}
+	offsetsMutex.Unlock()
+
 	return nil
 }
 
