@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/google/renameio/v2"
 	"github.com/influxdata/telegraf"
 )
 
@@ -73,8 +74,6 @@ func (p *Persister) Load() error {
 }
 
 func (p *Persister) Store() error {
-	p.stateMutex.Lock()
-	defer p.stateMutex.Unlock()
 
 	states := make(map[string][]byte)
 
@@ -104,7 +103,7 @@ func (p *Persister) Store() error {
 	}
 	defer f.Close()
 
-	if _, err := f.Write(serialized); err != nil {
+	if err := renameio.WriteFile(p.Filename, serialized, 0644); err != nil {
 		return fmt.Errorf("writing states failed: %w", err)
 	}
 
