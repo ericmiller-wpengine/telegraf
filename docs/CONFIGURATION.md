@@ -332,6 +332,14 @@ The agent table configures Telegraf and the defaults used across all plugins.
   stateful plugins on termination of Telegraf. If the file exists on start,
   the state in the file will be restored for the plugins.
 
+- **statefile_persist_interval**:
+  The interval of time at which the state is peristed into the statefile. When
+  set to 0, persist interval is disabled.
+
+- **round_statefile_persist_interval**:
+  Rounds persist interval to 'statefile_persist_interval'
+  ie, if statefile_persist_interval ="10m" then always persist state on :00, :10, :20, etc.
+
 - **always_include_local_tags**:
   Ensure tags explicitly defined in a plugin will *always* pass tag-filtering
   via `taginclude` or `tagexclude`. This removes the need to specify local tags
