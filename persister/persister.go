@@ -108,5 +108,19 @@ func (p *Persister) Store() error {
 		return fmt.Errorf("writing states failed: %w", err)
 	}
 
+	// Read it back in, see what we get
+	in, err := os.ReadFile(p.Filename)
+	if err != nil {
+		return fmt.Errorf("reading states file failed: %w", err)
+	}
+	log.Printf("REMOVE ME -> read back in: %s", in)
+
+	// Unmarshal the id to serialized states map
+	var reloaded map[string][]byte
+	if err := json.Unmarshal(in, &reloaded); err != nil {
+		return fmt.Errorf("unmarshalling reloaded states failed: %w", err)
+	}
+	log.Printf("REMOVE ME -> reloaded: %s", reloaded)
+
 	return nil
 }
